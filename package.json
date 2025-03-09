@@ -1,0 +1,41 @@
+{
+  "name": "@mirodeon/ts-entity",
+  "version": "0.0.1",
+  "contributors": [
+    {
+      "name": "Mirodeon",
+      "email": "mehdi.habaru@gmail.com"
+    }
+  ],
+  "license": "ISC",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {},
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run generate-barrels && npm run build && npm run clean-barrels",
+    "prepublishOnly": "npm run test",
+    "test": "mocha --ui tdd --require ts-node/register --recursive tests/unit/**/*.ts",
+    "generate-barrels": "cti create -b -w ./src",
+    "clean-barrels": "cti clean ./src"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "dependencies": {
+    "@mirodeon/ts-core": "0.0.1",
+    "strongly-typed-events": "3.0.11",
+    "tslib": "2.8.1",
+    "util": "0.12.5"
+  },
+  "devDependencies": {
+    "@types/chai": "5.0.1",
+    "@types/mocha": "10.0.10",
+    "@types/node": "22.13.5",
+    "chai": "5.2.0",
+    "create-ts-index": "1.14.0",
+    "mocha": "11.1.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.3"
+  }
+}

@@ -1,0 +1,12 @@
+/node_modules
+/lib
+/**/*.d.ts
+/**/*.js
+/**/*.js.map
+/**/*.pyc
+!gulpfile.js
+.idea
+.DS_Store
+script/.DS_Store
+/package-lock.json
+.npmrc
