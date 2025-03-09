@@ -5,7 +5,7 @@ import {User} from "../user/User";
 export class CrossApplicationUser extends CrossEntity<Application, User> {
     constructor() {
         super();
-        this.TimeMetadata().WithModification(false).WithCreationDayIndex().WithCreationMonthIndex().WithCreationYearIndex();
+        this.TimeMetadata().WithCreationDayIndex().WithCreationMonthIndex().WithCreationYearIndex();
     }
 
     protected CreatePrimary(): Application {
