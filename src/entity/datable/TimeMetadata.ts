@@ -6,7 +6,9 @@ export class TimeMetadata extends Metadata {
     private creation: DateEntity = new DateEntity().Deactivate();
     private modification: DateEntity = new DateEntity().Deactivate();
     private withCreation: boolean = false;
+    private withUpdateCreation: boolean = false;
     private withModification: boolean = false;
+    private withUpdateModification: boolean = false;
     private withCreationDayIndex: boolean = false;
     private withModificationDayIndex: boolean = false;
     private withCreationWeekIndex: boolean = false;
@@ -26,11 +28,23 @@ export class TimeMetadata extends Metadata {
 
     WithCreation(value: boolean = true): TimeMetadata {
         this.withCreation = value;
+        this.withUpdateCreation = value;
+        return this;
+    }
+
+    WithUpdateCreation(value: boolean = true): TimeMetadata {
+        this.withUpdateCreation = value;
         return this;
     }
 
     WithModification(value: boolean = true): TimeMetadata {
         this.withModification = value;
+        this.withUpdateModification = value;
+        return this;
+    }
+
+    WithUpdateModification(value: boolean = true): TimeMetadata {
+        this.withUpdateModification = value;
         return this;
     }
 
@@ -133,10 +147,12 @@ export class TimeMetadata extends Metadata {
     ToPersistable(): IData {
         const data: IData = {};
         if (this.withCreation) {
-            data['creation'] = this.creation.UpdateCreation().Serialize();
+            const date = this.withUpdateCreation ? this.creation.UpdateCreation() : this.creation;
+            data['creation'] = date.Serialize();
         }
         if (this.withModification) {
-            data['modification'] = this.modification.UpdateModification().Serialize();
+            const date = this.withUpdateModification ? this.modification.UpdateModification() : this.modification;
+            data['modification'] = date.Serialize();
         }
         if (this.withCreationDayIndex) {
             data['creationDayIndex'] = this.creation.DayIndex();

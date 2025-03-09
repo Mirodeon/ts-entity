@@ -9,11 +9,11 @@ export class Key extends Serializable {
         this.value = value;
     }
 
-    public Value(): IData {
+    Value(): IData {
         return this.value;
     }
 
-    public ToString(): string {
+    ToString(): string {
         if (this.value == null) {
             return ''
         }
