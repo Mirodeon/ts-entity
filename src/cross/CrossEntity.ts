@@ -7,11 +7,6 @@ export abstract class CrossEntity<T extends IEntity, U extends IEntity> extends 
     protected primary: T = this.CreatePrimary();
     protected secondary: U = this.CreateSecondary();
 
-    protected constructor() {
-        super();
-        this.TimeMetadata().WithModification(false);
-    }
-
     Primary(): T {
         return this.primary;
     }
