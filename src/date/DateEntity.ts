@@ -80,7 +80,7 @@ export class DateEntity extends Serializable implements IActivatable {
     }
 
     MonthIndex(): string {
-        return new Date(this.date.getFullYear(), this.date.getMonth(), 1).toISOString();
+        return new Date(this.date.getUTCFullYear(), this.date.getUTCMonth(), 1).toISOString();
     }
 
     WeekIndex(): string {
