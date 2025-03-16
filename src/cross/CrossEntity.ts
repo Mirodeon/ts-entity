@@ -7,12 +7,17 @@ export abstract class CrossEntity<T extends IEntity, U extends IEntity> extends 
     protected primary: T = this.CreatePrimary();
     protected secondary: U = this.CreateSecondary();
 
+    //<editor-fold desc="CrossEntity">
     Primary(): T {
         return this.primary;
     }
 
     SetPrimary(value: T): void {
-        this.primary.Update(value);
+        this.primary = value;
+    }
+
+    UpdatePrimary(value: T): boolean {
+        return this.primary.Update(value);
     }
 
     Secondary(): U {
@@ -20,26 +25,48 @@ export abstract class CrossEntity<T extends IEntity, U extends IEntity> extends 
     }
 
     SetSecondary(value: U): void {
-        this.secondary.Update(value);
+        this.secondary = value;
+    }
+
+    UpdateSecondary(value: U): boolean {
+        return this.secondary.Update(value);
     }
 
     protected abstract CreatePrimary(): T;
 
     protected abstract CreateSecondary(): U;
 
+    //</editor-fold>
+
     //<editor-fold desc="Serializable">
-    protected InnerBaseDeserialize(data: IData) {
+    protected InnerBaseDeserialize(data: IData): void {
         super.InnerBaseDeserialize(data);
-        this.primary.SetId(data["primary"]);
-        this.secondary.SetId(data["secondary"]);
+        this.PrimaryDeserialize(data);
+        this.SecondaryDeserialize(data);
+    }
+
+    protected PrimaryDeserialize(data: IData): void {
+        this.primary.Deserialize(data["primary"]);
+    }
+
+    protected SecondaryDeserialize(data: IData): void {
+        this.secondary.Deserialize(data["secondary"]);
     }
 
     protected InnerBaseSerialize(): IData {
         return {
             ...super.InnerBaseSerialize(),
-            primary: this.primary.GetId(),
-            secondary: this.secondary.GetId()
+            ...this.PrimarySerialize(),
+            ...this.SecondarySerialize()
         };
+    }
+
+    protected PrimarySerialize(): IData {
+        return {primary: this.primary.Serialize()};
+    }
+
+    protected SecondarySerialize(): IData {
+        return {secondary: this.secondary.Serialize()};
     }
 
     protected InnerDeserialize(data: IData) {
@@ -52,21 +79,37 @@ export abstract class CrossEntity<T extends IEntity, U extends IEntity> extends 
     //</editor-fold>
 
     //<editor-fold desc="Persistable">
-    protected InnerBaseToEntity(data: IData) {
+    protected InnerBaseToEntity(data: IData): void {
         super.InnerBaseToEntity(data);
-        this.primary.SetId(data["primary"]);
-        this.secondary.SetId(data["secondary"]);
+        this.PrimaryToEntity(data);
+        this.SecondaryToEntity(data);
+    }
+
+    protected PrimaryToEntity(data: IData): void {
+        this.primary.ToEntity(data["primary"]);
+    }
+
+    protected SecondaryToEntity(data: IData): void {
+        this.secondary.ToEntity(data["secondary"]);
     }
 
     protected InnerBaseToPersistable(): IData {
         return {
             ...super.InnerBaseToPersistable(),
-            primary: this.primary.GetId(),
-            secondary: this.secondary.GetId()
+            ...this.PrimaryToPersistable,
+            ...this.SecondaryToPersistable()
         };
     }
 
-    protected InnerToEntity(data: IData) {
+    protected PrimaryToPersistable(): IData {
+        return {primary: this.primary.ToPersistable()};
+    }
+
+    protected SecondaryToPersistable(): IData {
+        return {secondary: this.secondary.ToPersistable()};
+    }
+
+    protected InnerToEntity(data: IData): void {
     }
 
     protected InnerToPersistable(): IData {

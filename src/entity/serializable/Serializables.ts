@@ -5,6 +5,7 @@ import {Serializable} from "./Serializable";
 
 export abstract class Serializables<U extends ISerializable> extends Serializable implements ISerializables<U> {
     protected items: Array<U>;
+    protected itemsKey: string = 'items';
 
     constructor(items: Array<U> = []) {
         super();
@@ -14,6 +15,11 @@ export abstract class Serializables<U extends ISerializable> extends Serializabl
 
     [Symbol.iterator](): IterableIterator<U> {
         return this.items[Symbol.iterator]();
+    }
+
+    protected WithItemsKey(key: string): Serializables<U> {
+        this.itemsKey = key;
+        return this;
     }
 
     SetValue(items: Array<U>): void {
@@ -53,9 +59,9 @@ export abstract class Serializables<U extends ISerializable> extends Serializabl
         this.items.forEach(item => {
             serializedItems.push(serialize(item));
         });
-        return {
-            items: serializedItems
-        }
+        const data: IData = {};
+        data[this.itemsKey] = serializedItems;
+        return data;
     }
 
     Deserialize(data: IData): void {
@@ -68,8 +74,8 @@ export abstract class Serializables<U extends ISerializable> extends Serializabl
 
     protected ItemsDeserializer(data: IData, deserialize: (data: IData, item: U) => void): void {
         this.items = [];
-        if (data != null && data.hasOwnProperty('items')) {
-            for (let serializedItem of data['items']) {
+        if (data != null && data.hasOwnProperty(this.itemsKey)) {
+            for (let serializedItem of data[this.itemsKey]) {
                 let item: U = this.CreateEntity();
                 deserialize(serializedItem, item);
                 this.SubscribeToItem(item);

@@ -1,8 +1,8 @@
-import {CrossEntity} from "./CrossEntity";
 import {Application} from "../application/Application";
 import {User} from "../user/User";
+import {CrossRefEntity} from "./CrossRefEntity";
 
-export class CrossApplicationUser extends CrossEntity<Application, User> {
+export class CrossRefApplicationUser extends CrossRefEntity<Application, User> {
     constructor() {
         super();
         this.TimeMetadata().WithCreationDayIndex().WithCreationMonthIndex().WithCreationYearIndex();
@@ -16,7 +16,7 @@ export class CrossApplicationUser extends CrossEntity<Application, User> {
         return new User();
     }
 
-    Clone(): CrossApplicationUser {
-        return this.InnerClone(new CrossApplicationUser());
+    Clone(): CrossRefApplicationUser {
+        return this.InnerClone(new CrossRefApplicationUser());
     }
 }

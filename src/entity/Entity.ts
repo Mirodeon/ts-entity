@@ -2,13 +2,13 @@ import {Serializable} from "./serializable/Serializable";
 import {IEntity} from "./IEntity";
 import {IdKey} from "./identifiable/IdKey";
 import {IData} from "@mirodeon/ts-core";
-import {TimeMetadata} from "./datable/TimeMetadata";
+import {TimeMetadata} from "../date/TimeMetadata";
 
 
 export abstract class Entity extends Serializable implements IEntity {
     protected key: IdKey = new IdKey();
     protected activated: boolean = true;
-    protected timeMetadata: TimeMetadata = new TimeMetadata().WithCreation().WithModification();
+    protected timeMetadata: TimeMetadata = new TimeMetadata().WithCreation().WithModification().WithTime();
 
     //<editor-fold desc="Identifiable">
     Key(): IdKey {
@@ -54,6 +54,10 @@ export abstract class Entity extends Serializable implements IEntity {
 
     SetActive(active: boolean): void {
         this.activated = active;
+    }
+
+    ToggleActive(): void {
+        this.activated = !this.activated;
     }
 
     //</editor-fold>

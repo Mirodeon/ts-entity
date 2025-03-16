@@ -1,14 +1,18 @@
 import {IData} from "@mirodeon/ts-core";
-import {DateEntity} from "../../date/DateEntity";
-import {Metadata} from "../../metadata/Metadata";
+import {DateEntity} from "./DateEntity";
+import {Metadata} from "../metadata/Metadata";
 
 export class TimeMetadata extends Metadata {
     private creation: DateEntity = new DateEntity().Deactivate();
     private modification: DateEntity = new DateEntity().Deactivate();
+    private creationKey: string = 'creation';
+    private modificationKey: string = 'modification';
     private withCreation: boolean = false;
     private withUpdateCreation: boolean = false;
     private withModification: boolean = false;
     private withUpdateModification: boolean = false;
+    private withCreationTime: boolean = false;
+    private withModificationTime: boolean = false;
     private withCreationDayIndex: boolean = false;
     private withModificationDayIndex: boolean = false;
     private withCreationWeekIndex: boolean = false;
@@ -24,6 +28,18 @@ export class TimeMetadata extends Metadata {
 
     Modification(): DateEntity {
         return this.modification;
+    }
+
+    WithCreationKey(value: string): TimeMetadata {
+        this.creationKey = value;
+        this.WithCreation();
+        return this;
+    }
+
+    WithModificationKey(value: string): TimeMetadata {
+        this.modificationKey = value;
+        this.WithModification();
+        return this;
     }
 
     WithCreation(value: boolean = true): TimeMetadata {
@@ -45,6 +61,22 @@ export class TimeMetadata extends Metadata {
 
     WithUpdateModification(value: boolean = true): TimeMetadata {
         this.withUpdateModification = value;
+        return this;
+    }
+
+    WithCreationTime(value: boolean = true): TimeMetadata {
+        this.withCreationTime = value;
+        return this;
+    }
+
+    WithModificationTime(value: boolean = true): TimeMetadata {
+        this.withModificationTime = value;
+        return this;
+    }
+
+    WithTime(value: boolean = true): TimeMetadata {
+        this.withCreationTime = value;
+        this.withModificationTime = value;
         return this;
     }
 
@@ -127,66 +159,91 @@ export class TimeMetadata extends Metadata {
     Serialize(): IData {
         const data: IData = {};
         if (this.withCreation) {
-            data['creation'] = this.creation.Serialize();
+            data[this.creationKey] = this.creation.Serialize();
         }
         if (this.withModification) {
-            data['modification'] = this.modification.Serialize();
+            data[this.modificationKey] = this.modification.Serialize();
         }
         return data;
     }
 
     Deserialize(data: IData): void {
-        if (this.withCreation && data.hasOwnProperty('creation')) {
-            this.creation.Deserialize(data['creation']);
+        if (this.withCreation && data.hasOwnProperty(this.creationKey)) {
+            this.creation.Deserialize(data[this.creationKey]);
         }
-        if (this.withModification && data.hasOwnProperty('modification')) {
-            this.modification.Deserialize(data['modification']);
+        if (this.withModification && data.hasOwnProperty(this.modificationKey)) {
+            this.modification.Deserialize(data[this.modificationKey]);
         }
     }
 
     ToPersistable(): IData {
+        return {
+            ...this.CreationToPersistable(),
+            ...this.ModificationToPersistable()
+        };
+    }
+
+    private CreationToPersistable(): IData {
         const data: IData = {};
         if (this.withCreation) {
-            const date = this.withUpdateCreation ? this.creation.UpdateCreation() : this.creation;
-            data['creation'] = date.Serialize();
+            if (this.withUpdateCreation) {
+                this.creation.UpdateCreation();
+            }
+            data[this.creationKey] = this.creation.Serialize();
+
+            if (this.withCreationTime) {
+                data[this.creationKey + 'Time'] = this.creation.IsActive() ? this.creation.Epoch() : null;
+            }
+
+            if (this.withCreationDayIndex) {
+                data[this.creationKey + 'DayIndex'] = this.creation.DayIndex();
+            }
+            if (this.withCreationWeekIndex) {
+                data[this.creationKey + 'WeekIndex'] = this.creation.WeekIndex();
+            }
+            if (this.withCreationMonthIndex) {
+                data[this.creationKey + 'MonthIndex'] = this.creation.MonthIndex();
+            }
+            if (this.withCreationYearIndex) {
+                data[this.creationKey + 'YearIndex'] = this.creation.YearIndex();
+            }
         }
+        return data;
+    }
+
+    private ModificationToPersistable(): IData {
+        const data: IData = {};
         if (this.withModification) {
-            const date = this.withUpdateModification ? this.modification.UpdateModification() : this.modification;
-            data['modification'] = date.Serialize();
-        }
-        if (this.withCreationDayIndex) {
-            data['creationDayIndex'] = this.creation.DayIndex();
-        }
-        if (this.withModificationDayIndex) {
-            data['modificationDayIndex'] = this.modification.DayIndex();
-        }
-        if (this.withCreationWeekIndex) {
-            data['creationWeekIndex'] = this.creation.WeekIndex();
-        }
-        if (this.withModificationWeekIndex) {
-            data['modificationWeekIndex'] = this.modification.WeekIndex();
-        }
-        if (this.withCreationMonthIndex) {
-            data['creationMonthIndex'] = this.creation.MonthIndex();
-        }
-        if (this.withModificationMonthIndex) {
-            data['modificationMonthIndex'] = this.modification.MonthIndex();
-        }
-        if (this.withCreationYearIndex) {
-            data['creationYearIndex'] = this.creation.YearIndex();
-        }
-        if (this.withModificationYearIndex) {
-            data['modificationYearIndex'] = this.modification.YearIndex();
+            if (this.withUpdateModification) {
+                this.modification.UpdateModification();
+            }
+            data[this.modificationKey] = this.modification.Serialize();
+
+            if (this.withModificationTime) {
+                data[this.modificationKey + 'Time'] = this.modification.IsActive() ? this.modification.Epoch() : null;
+            }
+            if (this.withModificationDayIndex) {
+                data[this.modificationKey + 'DayIndex'] = this.modification.DayIndex();
+            }
+            if (this.withModificationWeekIndex) {
+                data[this.modificationKey + 'WeekIndex'] = this.modification.WeekIndex();
+            }
+            if (this.withModificationMonthIndex) {
+                data[this.modificationKey + 'MonthIndex'] = this.modification.MonthIndex();
+            }
+            if (this.withModificationYearIndex) {
+                data[this.modificationKey + 'YearIndex'] = this.modification.YearIndex();
+            }
         }
         return data;
     }
 
     ToEntity(data: IData): void {
-        if (this.withCreation && data.hasOwnProperty('creation')) {
-            this.creation.Deserialize(data['creation']);
+        if (this.withCreation && data.hasOwnProperty(this.creationKey)) {
+            this.creation.Deserialize(data[this.creationKey]);
         }
-        if (this.withModification && data.hasOwnProperty('modification')) {
-            this.modification.Deserialize(data['modification']);
+        if (this.withModification && data.hasOwnProperty(this.modificationKey)) {
+            this.modification.Deserialize(data[this.modificationKey]);
         }
     }
 }

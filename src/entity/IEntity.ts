@@ -3,7 +3,7 @@ import {ISerializable} from "./serializable/ISerializable";
 import {IIdentifiable} from "./identifiable/IIdentifiable";
 import {IdKey} from "./identifiable/IdKey";
 import {IActivatable} from "./activatable/IActivatable";
-import {IDatable} from "./datable/IDatable";
+import {IDatable} from "../date/IDatable";
 
 
 export interface IEntity extends ISerializable, IPersistable, IIdentifiable, IActivatable, IDatable {

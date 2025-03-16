@@ -2,7 +2,7 @@ import {ISerializables} from "./serializable/ISerializables";
 import {IEntity} from "./IEntity";
 import {IPersistable} from "./persistable/IPersistable";
 import {EntityIds} from "./identifiable/EntityIds";
-import {IDatable} from "./datable/IDatable";
+import {IDatable} from "../date/IDatable";
 
 
 export interface IEntities<T extends ISerializables<U>, U extends IEntity> extends ISerializables<U>, IPersistable, IDatable {

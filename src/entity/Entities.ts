@@ -3,7 +3,7 @@ import {IEntity} from "./IEntity";
 import {IEntities} from "./IEntities";
 import {EntityIds} from "./identifiable/EntityIds";
 import {IData} from "@mirodeon/ts-core";
-import {TimeMetadata} from "./datable/TimeMetadata";
+import {TimeMetadata} from "../date/TimeMetadata";
 
 export abstract class Entities<T extends IEntities<T, U>, U extends IEntity> extends Serializables<U> implements IEntities<T, U> {
     protected timeMetadata: TimeMetadata = new TimeMetadata();

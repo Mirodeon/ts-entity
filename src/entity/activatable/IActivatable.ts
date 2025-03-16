@@ -4,4 +4,5 @@ export interface IActivatable {
     IsActive(): boolean;
     IsInactive(): boolean;
     SetActive(active: boolean): void;
+    ToggleActive(): void;
 }

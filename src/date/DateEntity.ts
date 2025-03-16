@@ -72,6 +72,10 @@ export class DateEntity extends Serializable implements IActivatable {
         return this;
     }
 
+    ToggleActive(): void {
+        this.activated = !this.activated;
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Index">
