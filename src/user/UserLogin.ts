@@ -1,19 +1,25 @@
 import {Serializable} from "../entity/serializable/Serializable";
-import {IData, InvalidResult, ValidationResult, ValidResult} from "@mirodeon/ts-core";
+import {IData, InvalidResult, ValidationResult, Validator, ValidResult} from "@mirodeon/ts-core";
 
 export class UserLogin extends Serializable {
+    username: string;
     email: string;
+    input: string;
     password: string;
 
     Serialize(): IData {
         return {
+            username: this.username,
             email: this.email,
+            input: this.input,
             password: this.password,
         };
     }
 
     Deserialize(data: IData): void {
+        this.username = data["username"];
         this.email = data["email"];
+        this.input = data["input"];
         this.password = data["password"];
     }
 
@@ -21,27 +27,61 @@ export class UserLogin extends Serializable {
         return this.InnerClone(new UserLogin());
     }
 
-    IsValid(): ValidationResult {
+    IsValid(fromInput: boolean = true): ValidationResult {
         switch (true) {
-            case !this.ValidEmail():
-                return new InvalidResult("please_specify_an_valid_email");
-            case this.ValidPassword():
-                return new InvalidResult("the_password_must_be_contains_at_least_6_characters");
+            case !this.ValidUser(fromInput):
+                return new InvalidResult("please_specify_a_valid_username_or_email");
+            case !this.ValidPassword():
+                return new InvalidResult("the_password_must_be_at_least_6_characters");
             default:
                 return new ValidResult();
         }
     }
 
-    private ValidEmail(): boolean {
-        let regularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return regularExpression.test(String(this.email).toLowerCase());
+    Validate(): ValidationResult {
+        let validation = this.IsValid(true);
+        if (validation.result) {
+            switch (true) {
+                case this.ValidEmail():
+                    this.email = this.input;
+                    break;
+                case this.ValidUsername():
+                    this.username = this.input;
+                    break;
+                default:
+                    return new InvalidResult("please_specify_a_valid_username_or_email");
+            }
+        }
+        return validation;
+    }
+
+    HasInput(): boolean {
+        return this.input != null && this.input.length > 0;
+    }
+
+    HasUsername(): boolean {
+        return this.username != null && this.username.length > 0;
+    }
+
+    HasEmail(): boolean {
+        return this.email != null && this.email.length > 0;
+    }
+
+    private ValidUser(fromInput: boolean = true): boolean {
+        return this.ValidUsername(fromInput) || this.ValidEmail(fromInput);
+    }
+
+    private ValidUsername(fromInput: boolean = true): boolean {
+        const input = fromInput ? this.input : this.username;
+        return input != null && input.length >= 4;
+    }
+
+    private ValidEmail(fromInput: boolean = true): boolean {
+        const input = fromInput ? this.input : this.email;
+        return Validator.ValidEmail(input);
     }
 
     private ValidPassword(): boolean {
-        if (this.password != null) {
-            return this.password.length >= 6;
-        }
-
-        return true;
+        return Validator.ValidPassword(this.password);
     }
 }

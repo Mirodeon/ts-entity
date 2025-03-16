@@ -1,15 +1,17 @@
 import {Entity} from "../entity/Entity";
-import {UserLogin} from "./UserLogin";
-import {IData, ValidationResult} from "@mirodeon/ts-core";
+import {IData, ValidationResult, ValidResult} from "@mirodeon/ts-core";
 import {UserAccess} from "./UserAccess";
 import {Applications} from "../application/Applications";
 import {TimeMetadata} from "../date/TimeMetadata";
 import {DateEntity} from "../date/DateEntity";
+import {UserInfo} from "./UserInfo";
+import {UserLogin} from "./UserLogin";
+import {UserPassword} from "./UserPassword";
 
 export class User extends Entity {
-    login: UserLogin = new UserLogin();
-    access: UserAccess = new UserAccess();
-    name: string;
+    protected access: UserAccess = new UserAccess();
+    protected info: UserInfo = new UserInfo();
+    protected password: UserPassword = new UserPassword();
     applications: Applications = new Applications();
     protected lastLogin: TimeMetadata = new TimeMetadata().WithModificationKey('lastLogin').WithTime().WithAllIndex();
 
@@ -22,42 +24,89 @@ export class User extends Entity {
         return this.lastLogin.Modification();
     }
 
+    Login(): UserLogin {
+        const login = new UserLogin();
+        login.email = this.info.primaryEmail;
+        login.username = this.info.username;
+        login.password = this.password.Value();
+        return login;
+    }
+
+    Access(): UserAccess {
+        return this.access;
+    }
+
+    Info(): UserInfo {
+        return this.info;
+    }
+
+    Password(): UserPassword {
+        return this.password;
+    }
+
+    SetPassword(value: string): void {
+        this.password.SetValue(value);
+    }
+
+    CompletePassword(password: UserPassword): boolean {
+        const hasValue = this.password.HasValue();
+        if (hasValue) {
+            this.password.UpdateModification();
+        } else {
+            this.password.Update(password);
+        }
+        return !hasValue;
+    }
+
+    ClearPassword(): void {
+        this.password.Clear();
+    }
+
+    IsValid(): ValidationResult {
+        const infoValidation = this.info.IsValid();
+        if (!infoValidation.result) {
+            return infoValidation;
+        }
+
+        const passwordValidation = this.password.IsValid();
+        if (!passwordValidation.result) {
+            return passwordValidation;
+        }
+        return new ValidResult();
+    }
+
     InnerSerialize(): IData {
         return {
-            login: this.login.Serialize(),
             access: this.access.Serialize(),
-            name: this.name,
+            ...this.info.Serialize(),
+            password: this.password.Serialize(),
             applications: this.applications.Serialize(),
             ...this.lastLogin.Serialize()
         }
     }
 
     InnerDeserialize(data: IData): void {
-        this.login.Deserialize(data['login']);
         this.access.Deserialize(data['access']);
-        this.name = data['name'];
+        this.info.Deserialize(data);
+        this.password.Deserialize(data['password']);
         this.applications.Deserialize(data['applications']);
         this.lastLogin.Deserialize(data);
     }
 
     InnerToPersistable(): IData {
         return {
-            login: this.login.Serialize(),
-            name: this.name,
+            ...this.info.ToPersistable(),
+            password: this.password.ToPersistable(),
             applications: this.applications.ToLazyPersistable(),
             ...this.lastLogin.ToPersistable()
         }
     }
 
     InnerToEntity(data: IData): void {
-        this.login.Deserialize(data['login']);
-        this.name = data['name'];
+        this.info.ToEntity(data);
+        this.password.ToEntity(data['password']);
         this.applications.ToLazyEntity(data['applications']);
         this.lastLogin.ToEntity(data);
-    }
-
-    IsValid(): ValidationResult {
-        return this.login.IsValid();
     }
 
     Clone(): User {

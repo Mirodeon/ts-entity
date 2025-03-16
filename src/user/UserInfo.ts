@@ -1,45 +1,73 @@
 import {Serializable} from "../entity/serializable/Serializable";
-import {IData, InvalidResult, ValidationResult, ValidResult} from "@mirodeon/ts-core";
+import {IData, InvalidResult, ValidationResult, Validator, ValidResult} from "@mirodeon/ts-core";
+import {IPersistable} from "../entity/persistable/IPersistable";
 
-export class UserInfo extends Serializable {
-    email: string;
-    password: string;
-
-    Serialize(): IData {
-        return {
-            email: this.email,
-            password: this.password,
-        };
-    }
-
-    Deserialize(data: IData): void {
-        this.email = data["email"];
-        this.password = data["password"];
-    }
-
-    Clone(): UserInfo {
-        return this.InnerClone(new UserInfo());
-    }
+export class UserInfo extends Serializable implements IPersistable {
+    username: string;
+    name: string;
+    primaryEmail: string;
+    emails: string[] = [];
 
     IsValid(): ValidationResult {
         switch (true) {
             case !this.ValidEmail():
-                return new InvalidResult("please_specify_an_valid_email");
+                return new InvalidResult("please_specify_a_valid_email");
+            case !this.ValidUsername():
+                return new InvalidResult("the_username_must_be_at_least_4_characters");
             default:
                 return new ValidResult();
         }
     }
 
     private ValidEmail(): boolean {
-        let regularExpression = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return regularExpression.test(String(this.email).toLowerCase());
+        return this.ValidEmails() && this.ValidPrimaryEmail();
     }
 
-    private ValidPassword(): boolean {
-        if (this.password != null) {
-            return this.password.length >= 6;
-        }
+    private ValidPrimaryEmail(): boolean {
+        return Validator.ValidEmail(this.primaryEmail);
+    }
 
-        return true;
+    private ValidEmails(): boolean {
+        return Validator.ValidEmails(this.emails);
+    }
+
+    private ValidUsername(): boolean {
+        return this.username != null && this.username.length >= 4;
+    }
+
+    Deserialize(data: IData): void {
+        this.username = data["username"];
+        this.name = data["name"];
+        this.primaryEmail = data["primaryEmail"];
+        this.emails = data["emails"];
+    }
+
+    Serialize(): IData {
+        return {
+            username: this.username,
+            name: this.name,
+            primaryEmail: this.primaryEmail,
+            emails: this.emails
+        };
+    }
+
+    ToEntity(data: IData) {
+        this.username = data["username"];
+        this.name = data["name"];
+        this.primaryEmail = data["primaryEmail"];
+        this.emails = data["emails"];
+    }
+
+    ToPersistable(): IData {
+        return {
+            username: this.username,
+            name: this.name,
+            primaryEmail: this.primaryEmail,
+            emails: this.emails
+        };
+    }
+
+    Clone(): UserInfo {
+        return this.InnerClone(new UserInfo());
     }
 }
