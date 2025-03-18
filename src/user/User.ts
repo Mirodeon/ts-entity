@@ -13,7 +13,7 @@ export class User extends Entity {
     protected info: UserInfo = new UserInfo();
     protected password: UserPassword = new UserPassword();
     applications: Applications = new Applications();
-    protected lastLogin: TimeMetadata = new TimeMetadata().WithModificationKey('lastLogin').WithTime().WithAllIndex();
+    protected lastLogin: TimeMetadata = new TimeMetadata().WithModificationKey('lastLogin').WithUpdateModification(false).WithTime().WithAllIndex();
 
     constructor() {
         super();
@@ -22,6 +22,10 @@ export class User extends Entity {
 
     LastLogin(): DateEntity {
         return this.lastLogin.Modification();
+    }
+
+    UpdateLastLogin(): void {
+        this.lastLogin.Modification().UpdateModification();
     }
 
     Login(): UserLogin {
