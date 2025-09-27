@@ -11,3 +11,4 @@ script/.DS_Store
 /package-lock.json
 .npmrc
 .iml
+/ts-entity.iml
