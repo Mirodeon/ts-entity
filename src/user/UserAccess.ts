@@ -5,6 +5,23 @@ export class UserAccess extends Serializable {
     token: string;
     refreshToken: string;
 
+    HasToken(): boolean {
+        return !!this.token;
+    }
+
+    HasRefreshToken(): boolean {
+        return !!this.refreshToken;
+    }
+
+    HasTokens(): boolean {
+        return this.HasToken() && this.HasRefreshToken();
+    }
+
+    Clear(): void {
+        this.token = null;
+        this.refreshToken = null;
+    }
+
     Serialize(): IData {
         return {
             token: this.token,
