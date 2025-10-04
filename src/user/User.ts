@@ -7,11 +7,14 @@ import {DateEntity} from "../date/DateEntity";
 import {UserInfo} from "./UserInfo";
 import {UserLogin} from "./UserLogin";
 import {UserPassword} from "./UserPassword";
+import {EnumRef} from "../enum/EnumRef";
+import {UserRole} from "./UserRole";
 
 export class User extends Entity {
     protected access: UserAccess = new UserAccess();
     protected info: UserInfo = new UserInfo();
     protected password: UserPassword = new UserPassword();
+    protected role: EnumRef<UserRole> = UserRole.Ref();
     applications: Applications = new Applications();
     protected lastLogin: TimeMetadata = new TimeMetadata().WithModificationKey('lastLogin').WithUpdateModification(false).WithTime().WithAllIndex();
 
@@ -38,6 +41,10 @@ export class User extends Entity {
 
     Access(): UserAccess {
         return this.access;
+    }
+
+    Role(): EnumRef<UserRole> {
+        return this.role;
     }
 
     Info(): UserInfo {
@@ -84,6 +91,7 @@ export class User extends Entity {
             access: this.access.Serialize(),
             ...this.info.Serialize(),
             password: this.password.Serialize(),
+            role: this.role.Serialize(),
             applications: this.applications.Serialize(),
             ...this.lastLogin.Serialize()
         }
@@ -93,6 +101,7 @@ export class User extends Entity {
         this.access.Deserialize(data['access']);
         this.info.Deserialize(data);
         this.password.Deserialize(data['password']);
+        this.role.Deserialize(data['role']);
         this.applications.Deserialize(data['applications']);
         this.lastLogin.Deserialize(data);
     }
@@ -101,6 +110,7 @@ export class User extends Entity {
         return {
             ...this.info.ToPersistable(),
             password: this.password.ToPersistable(),
+            role: this.role.Serialize(),
             applications: this.applications.ToLazyPersistable(),
             ...this.lastLogin.ToPersistable()
         }
@@ -109,6 +119,7 @@ export class User extends Entity {
     InnerToEntity(data: IData): void {
         this.info.ToEntity(data);
         this.password.ToEntity(data['password']);
+        this.role.Deserialize(data['role']);
         this.applications.ToLazyEntity(data['applications']);
         this.lastLogin.ToEntity(data);
     }
